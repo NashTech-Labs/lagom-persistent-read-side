@@ -23,19 +23,26 @@ class UserServiceImpl(persistentEntityRegistry: PersistentEntityRegistry, userRe
   override def getUserById(id: String): ServiceCall[NotUsed, String] =
     ServiceCall { _ =>
       ref(id).ask(GetUserCommand(id)).map(user =>
-        s"User for id:$id is ${user.name}")
+        s"User for id $id is ${user.name}")
     }
 
   override def getUserByName(name: String): ServiceCall[NotUsed, String] =
     ServiceCall { _ =>
-    userRepository.getUserByName(name).map(user =>
-      s"User for name:$name has id: ${user.get.id} and age: ${user.get.age}"
-    )
-  }
+      userRepository.getUserByName(name).map(user =>
+        s"User for name $name has id ${user.get.id} and age ${user.get.age}"
+      )
+    }
 
   def ref(id: String): PersistentEntityRef[UserCommand[_]] = {
     persistentEntityRegistry
       .refFor[UserEntity](id)
   }
 
+  override def getUserByNameAndAge(name: String, age: Int): ServiceCall[NotUsed, String] = {
+    ServiceCall { _ =>
+      userRepository.getUserByNAmeAndAge(name, age).map(user =>
+        s"User with name $name and age $age has id ${user.get.id}")
+
+    }
+  }
 }

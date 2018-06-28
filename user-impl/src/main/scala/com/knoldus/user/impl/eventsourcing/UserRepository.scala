@@ -29,9 +29,9 @@ class UserRepository(session: CassandraSession)(implicit ec: ExecutionContext) {
   }
 
   def createPreparedStatements: Future[Done] = {
-    for{
+    for {
       userPreparedStatement <- session.prepare("INSERT INTO usertable(id, name, age) VALUES (?, ?, ?)")
-    } yield{
+    } yield {
       userStatement = userPreparedStatement
       Done
     }
@@ -46,13 +46,20 @@ class UserRepository(session: CassandraSession)(implicit ec: ExecutionContext) {
   }
 
   def getUserByName(name: String): Future[Option[User]] =
-    session.selectOne(s"SELECT * FROM usertable WHERE name = '$name'").map{optRow =>
-      optRow.map{row =>
+    session.selectOne(s"SELECT * FROM usertable WHERE name = '$name'").map { optRow =>
+      optRow.map { row =>
         val id = row.getString("id")
         val name = row.getString("name")
         val age = row.getInt("age")
         User(id, name, age)
       }
     }
+
+  def getUserByNAmeAndAge(name: String, age: Int): Future[Option[User]] =
+    session.selectOne(s"SELECT * FROM usertable WHERE" +
+      s" name = '$name' AND age = $age ALLOW FILTERING").map({ optRow =>
+      optRow.map(row =>
+        User(row.getString("id"), row.getString("name"), row.getInt("age")))
+    })
 
 }

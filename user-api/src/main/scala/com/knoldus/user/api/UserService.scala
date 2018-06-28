@@ -9,6 +9,7 @@ trait UserService extends Service {
   def createUser(id: String, name: String, age: Int): ServiceCall[NotUsed, String]
   def getUserById(id: String): ServiceCall[NotUsed, String]
   def getUserByName(name: String): ServiceCall[NotUsed, String]
+  def getUserByNameAndAge(name: String, age: Int) : ServiceCall[NotUsed, String]
 
   override def descriptor: Descriptor = {
     import Service._
@@ -17,7 +18,8 @@ trait UserService extends Service {
       .withCalls(
         restCall(Method.POST, "/user/create/:id/:name/:age", createUser _),
         restCall(Method.GET, "/user/details/id/:id", getUserById _),
-        restCall(Method.GET, "/user/details/name/:name", getUserByName _)
+        restCall(Method.GET, "/user/details/name/:name", getUserByName _),
+        restCall(Method.GET, "/user/detailsByNameAndAge/name/:name/age/:age", getUserByNameAndAge _)
       ).withAutoAcl(true)
   }
 }
